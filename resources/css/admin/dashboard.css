@@ -1,0 +1,128 @@
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-card .icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 1.5rem;
+    opacity: 0.2;
+}
+
+.stat-card h3 {
+    font-size: 0.875rem;
+    color: var(--text-medium);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.stat-card p {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.stat-card .trend {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    margin-top: 8px;
+    color: var(--text-medium);
+}
+
+.trend.up {
+    color: #10b981;
+}
+
+.trend.down {
+    color: var(--danger-color);
+}
+
+.section-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+}
+
+.section-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.section-card h2 {
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-card h2 i {
+    color: var(--primary-color);
+}
+
+.chart-container {
+    height: 300px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.activity-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.activity-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.activity-list li:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: rgba(59, 130, 246, 0.1);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-time {
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
