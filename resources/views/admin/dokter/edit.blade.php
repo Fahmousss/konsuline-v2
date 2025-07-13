@@ -27,9 +27,10 @@
                 <label>Ganti Foto (opsional)</label>
                 <input type="file" name="foto">
                 @if ($doctor->foto)
-                    <div class="current-photo">
+                    <div class="current-photo" style="display: flex; align-items: center; gap: 10px;">
                         <small>Foto saat ini:</small>
-                        <img src="{{ asset('storage/' . $doctor->foto) }}" alt="Foto Dokter">
+                        <img src="{{ asset('storage/' . $doctor->foto) }}" alt="Foto Dokter"
+                            style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;">
                     </div>
                 @endif
             </div>
