@@ -37,6 +37,7 @@ class AutoCompleteMessageJob implements ShouldQueue
         }
         foreach ($messages as $message) {
             $message->status = StatusKonsultasi::SELESAI;
+            $message->messages()->delete();
             $message->save();
         }
     }

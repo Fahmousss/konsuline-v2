@@ -16,5 +16,9 @@ class ConsultationObserver
             $consultation->started_at = now();
             $consultation->save();
         }
+
+        if ($consultation->status === StatusKonsultasi::SELESAI) {
+            $consultation->messages()->delete();
+        }
     }
 }
