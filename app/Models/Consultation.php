@@ -7,6 +7,8 @@ use App\Enums\StatusKonsultasi;
 use App\Enums\StatusPembayaran;
 use App\Models\Scopes\DoctorScope;
 use App\Models\Scopes\PatientScope;
+use App\Observers\ConsultationObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 
 #[ScopedBy([PatientScope::class, DoctorScope::class])]
+#[ObservedBy(ConsultationObserver::class)]
 class Consultation extends Model
 {
     /**

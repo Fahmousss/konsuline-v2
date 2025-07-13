@@ -21,7 +21,7 @@
                 <p><strong>Spesialisasi:</strong> {{ $doctor->specialty->nama ?? '-' }}</p>
                 <p><strong>Foto:</strong></p>
                 @if ($doctor->foto)
-                    <img src="{{ asset('storage/foto_dokter/' . $doctor->foto) }}" alt="Foto Dokter" class="img-thumbnail"
+                    <img src="{{ asset('storage/' . $doctor->foto) }}" alt="Foto Dokter" class="img-thumbnail"
                         style="max-width: 200px;">
                 @else
                     <p class="text-muted">Tidak ada foto.</p>

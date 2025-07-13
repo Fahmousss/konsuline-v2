@@ -85,8 +85,8 @@
         {{-- Kartu Profil Dokter --}}
         <div class="card shadow-sm mb-4">
             <div class="card-body d-flex align-items-center">
-                <img src="{{ asset('storage/foto_dokter/' . $doctor->foto) }}" class="rounded-circle me-3" width="90"
-                    height="90" alt="Foto Dokter">
+                <img src="{{ asset('storage/' . $doctor->foto) }}" class="rounded-circle me-3" width="90" height="90"
+                    alt="Foto Dokter">
                 <div>
                     <h5 class="mb-1">{{ $doctor->user->name ?? 'Nama tidak tersedia' }}</h5>
                     <p class="mb-0 text-muted">{{ $doctor->specialty->nama ?? 'Spesialis tidak tersedia' }}</p>

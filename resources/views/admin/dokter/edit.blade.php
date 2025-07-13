@@ -29,7 +29,7 @@
                 @if ($doctor->foto)
                     <div class="current-photo">
                         <small>Foto saat ini:</small>
-                        <img src="{{ asset('storage/foto_dokter/' . $doctor->foto) }}" alt="Foto Dokter">
+                        <img src="{{ asset('storage/' . $doctor->foto) }}" alt="Foto Dokter">
                     </div>
                 @endif
             </div>

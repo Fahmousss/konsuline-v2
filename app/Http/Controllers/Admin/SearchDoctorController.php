@@ -31,7 +31,7 @@ class SearchDoctorController extends Controller
                 'name' => $doctor->user->name,
                 'email' => $doctor->user->email,
                 'specialty' => $doctor->specialty->nama,
-                'foto' => $doctor->foto ? asset('storage/foto_dokter/' . $doctor->foto) : null,
+                'foto' => $doctor->foto ? asset('storage/' . $doctor->foto) : null,
                 'harga_konsultasi' => $doctor->harga_konsultasi,
             ];
         }));

@@ -16,6 +16,9 @@ class DoctorScope implements Scope
     public function apply(Builder $builder, Model $model): void
     {
         $user = Auth::user();
+        if (!$user) {
+            return;
+        }
         if ($user->role === UserRole::DOKTER) {
             $builder->whereHas('doctor', function ($query) use ($user) {
                 $query->where('id', $user->doctor->id);

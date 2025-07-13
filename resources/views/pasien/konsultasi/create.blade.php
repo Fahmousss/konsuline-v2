@@ -206,7 +206,7 @@
             <div class="card-body">
                 <!-- Info Dokter -->
                 <div class="dokter-info">
-                    <img src="{{ asset('storage/foto_dokter/' . $consultation->doctor->foto) }}" alt="Foto Dokter"
+                    <img src="{{ asset('storage/' . $consultation->doctor->foto) }}" alt="Foto Dokter"
                         class="dokter-photo">
                     <div>
                         <h2 class="dokter-name">{{ $consultation->doctor->user->name ?? '-' }}</h2>

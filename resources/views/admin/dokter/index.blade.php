@@ -165,7 +165,7 @@
             'name' => $d->user->name,
             'email' => $d->user->email,
             'specialty' => $d->specialty->nama ?? '-',
-            'foto' => $d->foto ? asset('storage/foto_dokter/' . $d->foto) : null,
+            'foto' => $d->foto ? asset('storage/' . $d->foto) : null,
         ];
     }),
 ))" class="row g-2 mb-3">
