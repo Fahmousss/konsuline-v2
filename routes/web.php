@@ -84,6 +84,10 @@ Route::prefix('admin')
                 Route::get('/', [ManageDoctorController::class, 'index'])->name('index');
                 Route::post('/', [ManageDoctorController::class, 'store'])->name('store');
                 Route::get('/create', [ManageDoctorController::class, 'create'])->name('create');
+                Route::get('/search', SearchDoctorController::class)->name('search');
+
+                Route::put('/jadwal/{jadwal}', [ManageDoctorScheduleController::class, 'update'])->name('jadwal.update');
+                Route::delete('/jadwal/{jadwal}', [ManageDoctorScheduleController::class, 'destroy'])->name('jadwal.delete');
                 Route::get('/{doctor}', [ManageDoctorController::class, 'show'])->name('show');
                 Route::get('/{doctor}/edit', [ManageDoctorController::class, 'edit'])->name('edit');
                 Route::patch('/{doctor}/update', [ManageDoctorController::class, 'update'])->name('update');
@@ -91,12 +95,10 @@ Route::prefix('admin')
                 Route::put('/{doctor}/ubah-password', ChangeDoctorPasswordController::class)->name('ubah-password');
                 Route::put('/{doctor}/harga', ChangeDoctorPriceController::class)->name('harga');
 
-                Route::get('/search', SearchDoctorController::class)->name('search');
+
 
                 Route::get('/{doctor}/jadwal', [ManageDoctorScheduleController::class, 'edit'])->name('jadwal.edit');
                 Route::post('/{doctor}/jadwal', [ManageDoctorScheduleController::class, 'store'])->name('jadwal.store');
-                Route::put('/jadwal/{jadwal}', [ManageDoctorScheduleController::class, 'update'])->name('jadwal.update');
-                Route::delete('/jadwal/{jadwal}', [ManageDoctorScheduleController::class, 'destroy'])->name('jadwal.delete');
             });
 
         Route::prefix('pembayaran')

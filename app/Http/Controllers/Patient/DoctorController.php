@@ -6,6 +6,7 @@ use App\Enums\StatusKonsultasi;
 use App\Http\Controllers\Controller;
 use App\Models\Consultation;
 use App\Models\Doctor;
+use App\Models\Specialty;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -14,11 +15,22 @@ class DoctorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $doctors = Doctor::with(['user', 'specialty', 'review'])->orderByDesc('id')->paginate(10);
+        $specialties = Specialty::orderBy('nama')->get();
 
-        return view('pasien.dokter.index', compact('doctors'));
+        $doctors = collect(); // Empty collection initially
+        $selectedSpecialty = null;
+
+        if ($request->has('specialty_id') && $request->specialty_id) {
+            $selectedSpecialty = Specialty::find($request->specialty_id);
+            $doctors = Doctor::with(['user', 'specialty', 'review'])
+                ->where('specialty_id', $request->specialty_id)
+                ->orderByDesc('id')
+                ->paginate(10);
+        }
+
+        return view('pasien.dokter.index', compact('doctors', 'specialties', 'selectedSpecialty'));
     }
 
     /**

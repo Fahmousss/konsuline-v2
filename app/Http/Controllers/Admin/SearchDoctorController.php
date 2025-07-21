@@ -14,8 +14,12 @@ class SearchDoctorController extends Controller
     public function __invoke(Request $request)
     {
         $search = $request->query('q');
+        $specialtyId = $request->query('specialty_id');
 
         $doctors = Doctor::with(['specialty', 'user', 'review'])
+            ->when($specialtyId, function ($q) use ($specialtyId) {
+                return $q->where('specialty_id', $specialtyId);
+            })
             ->when($search, function ($query, $search) {
                 $query->whereHas('user', function ($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%')

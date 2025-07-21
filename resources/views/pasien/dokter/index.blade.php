@@ -1,5 +1,47 @@
 @push('styles')
     <style>
+        .specialty-selection {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px solid #e9ecef;
+        }
+
+        .specialty-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #e9ecef;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .specialty-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #007bff;
+        }
+
+        .specialty-card.selected {
+            border-color: #007bff;
+            background: #007bff;
+            color: white;
+        }
+
+        .specialty-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #007bff;
+        }
+
+        .specialty-card.selected .specialty-icon {
+            color: white;
+        }
+
         .doctor-card {
             border: none;
             border-radius: 16px;
@@ -29,6 +71,11 @@
             border-radius: 50%;
             margin: 0 auto 1rem;
             background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #999;
         }
 
         .doctor-name {
@@ -59,7 +106,6 @@
             font-weight: 500;
             color: #fff;
         }
-
 
         .badge-offline {
             background-color: #dc3545;
@@ -102,9 +148,25 @@
             color: #888;
         }
 
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+
         @media (max-width: 768px) {
             .doctor-card {
                 width: 100%;
+            }
+
+            .specialty-card {
+                margin: 0.25rem;
             }
         }
 
@@ -123,34 +185,29 @@
             document.getElementById(id).classList.add('active');
         }
 
-        function dokterSearch(initialDoctors = []) {
+        function dokterApp() {
             return {
+                selectedSpecialty: @js($selectedSpecialty ? $selectedSpecialty->id : null),
+                selectedSpecialtyName: @js($selectedSpecialty ? $selectedSpecialty->nama : ''),
+                specialtyQuery: '',
+                specialties: @js(
+    $specialties->map(function ($s) {
+        return [
+            'id' => $s->id,
+            'nama' => $s->nama,
+        ];
+    }),
+),
+                filteredSpecialties: @js(
+    $specialties->map(function ($s) {
+        return [
+            'id' => $s->id,
+            'nama' => $s->nama,
+        ];
+    }),
+),
                 query: '',
-                doctors: initialDoctors,
-                allDoctors: initialDoctors,
-                async search() {
-                    if (this.query.length < 2) {
-                        this.doctors = this.allDoctors;
-                        return;
-                    }
-
-                    try {
-                        const res = await fetch(`/pasien/dokter/search?q=${encodeURIComponent(this.query)}`);
-                        const data = await res.json();
-                        this.doctors = data;
-                    } catch (e) {
-                        console.error('Error fetching dokter:', e);
-                    }
-                },
-            };
-        }
-    </script>
-@endpush
-
-<x-pasien-layout :title="'Cari Dokter'">
-    <div class="container mt-5">
-        <h2 class="text-center mb-4">Cari Dokter</h2>
-        <div x-data="dokterSearch(@js(
+                doctors: @js(
     $doctors->map(function ($d) {
         return [
             'id' => $d->id,
@@ -161,52 +218,198 @@
             'harga' => $d->harga_konsultasi,
         ];
     }),
-))">
-            <div class="row justify-content-center g-3 mb-4">
-                <div class="col-md-6">
-                    <input type="text" x-model="query" @input.debounce.300ms="search" class="form-control"
-                        placeholder="Cari nama dokter...">
+),
+                allDoctors: @js(
+    $doctors->map(function ($d) {
+        return [
+            'id' => $d->id,
+            'name' => $d->user->name,
+            'email' => $d->user->email,
+            'specialty' => $d->specialty->nama ?? '-',
+            'foto' => $d->foto ? asset('storage/' . $d->foto) : null,
+            'harga' => $d->harga_konsultasi,
+        ];
+    }),
+),
+
+                filterSpecialties() {
+                    if (this.specialtyQuery.length === 0) {
+                        this.filteredSpecialties = this.specialties;
+                    } else {
+                        this.filteredSpecialties = this.specialties.filter(specialty =>
+                            specialty.nama.toLowerCase().includes(this.specialtyQuery.toLowerCase())
+                        );
+                    }
+                },
+
+                selectSpecialty(specialtyId, specialtyName) {
+                    this.selectedSpecialty = specialtyId;
+                    this.selectedSpecialtyName = specialtyName;
+                    this.query = '';
+                    this.loadDoctorsBySpecialty();
+                },
+
+                async loadDoctorsBySpecialty() {
+                    if (!this.selectedSpecialty) {
+                        this.doctors = [];
+                        return;
+                    }
+
+                    try {
+                        // Redirect to URL with specialty parameter to maintain pagination
+                        window.location.href = `/pasien/dokter?specialty_id=${this.selectedSpecialty}`;
+                    } catch (e) {
+                        console.error('Error loading doctors:', e);
+                    }
+                },
+
+                async search() {
+                    if (!this.selectedSpecialty) {
+                        return;
+                    }
+
+                    if (this.query.length < 2) {
+                        this.doctors = this.allDoctors;
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(
+                            `/pasien/dokter/search?q=${encodeURIComponent(this.query)}&specialty_id=${this.selectedSpecialty}`
+                            );
+                        const data = await res.json();
+                        this.doctors = data;
+                    } catch (e) {
+                        console.error('Error fetching doctors:', e);
+                    }
+                },
+            };
+        }
+    </script>
+@endpush
+
+<x-pasien-layout :title="'Cari Dokter'">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Cari Dokter</h2>
+
+        <div x-data="dokterApp()">
+            <!-- Specialty Selection -->
+            <div class="specialty-selection">
+                <h4 class="mb-3 text-center">Pilih Spesialisasi</h4>
+
+                <!-- Search Bar for Specialty -->
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" x-model="specialtyQuery" @input="filterSpecialties()"
+                                class="form-control" placeholder="Cari spesialisasi...">
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <template x-if="doctors.length === 0">
-                <div class="no-results">
-                    <p>Tidak ditemukan dokter sesuai pencarian.</p>
+                <div class="row justify-content-center">
+                    <template x-for="specialty in filteredSpecialties" :key="specialty.id">
+                        <div class="col-md-3 col-sm-6">
+                            <div class="specialty-card" :class="{ 'selected': selectedSpecialty == specialty.id }"
+                                @click="selectSpecialty(specialty.id, specialty.nama)">
+                                <div class="specialty-icon">🩺</div>
+                                <h6 class="mb-0" x-text="specialty.nama"></h6>
+                            </div>
+                        </div>
+                    </template>
                 </div>
-            </template>
 
-            <div class="card-container">
-                <template x-for="(dokter, index) in doctors" :key="dokter.id">
-                    <div class="doctor-card">
-                        <template x-if="dokter.foto">
-                            <img :src="dokter.foto" alt="Foto Dokter" class="doctor-avatar">
-                        </template>
-                        <template x-if="!dokter.foto">
-                            <div class="doctor-placeholder"></div>
-                        </template>
-
-                        <div class="doctor-name" x-text="dokter.name"></div>
-                        <div class="doctor-spesialis" x-text="dokter.specialty"></div>
-                        <div class="rating-stars">★★★★☆</div>
-                        <div class="doctor-harga"
-                            x-text="dokter.harga ? 'Rp ' + new Intl.NumberFormat('id-ID').format(dokter.harga) : 'Harga belum diatur'">
-                        </div>
-
-
-                        <div class="card-footer">
-                            <button class="btn btn-outline-primary btn-sm"
-                                @click="showDetail('jadwal-' + dokter.id)">Lihat Jadwal</button>
-
-                            <a :href="`/pasien/dokter/${dokter.id}`" class="btn btn-success btn-sm">Konsultasi</a>
-                        </div>
-
-                        <div :id="'jadwal-' + dokter.id" class="card-toggle-content">
-                            <strong>Jadwal:</strong> Senin - Jumat, 08:00 - 14:00
-                        </div>
+                <!-- No specialty found message -->
+                <template x-if="filteredSpecialties.length === 0 && specialtyQuery">
+                    <div class="text-center mt-3">
+                        <p class="text-muted">Tidak ditemukan spesialisasi dengan kata kunci "<span
+                                x-text="specialtyQuery"></span>"</p>
                     </div>
                 </template>
             </div>
 
+            <!-- Doctor Search and List (only show if specialty is selected) -->
+            <template x-if="selectedSpecialty">
+                <div>
+                    <!-- Search Bar -->
+                    <div class="row justify-content-center g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" x-model="query" @input.debounce.300ms="search"
+                                    class="form-control" :placeholder="'Cari dokter ' + selectedSpecialtyName + '...'">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- No Results Message -->
+                    <template x-if="doctors.length === 0 && selectedSpecialty">
+                        <div class="no-results">
+                            <div class="empty-state-icon">👨‍⚕️</div>
+                            <h5>Tidak ada dokter ditemukan</h5>
+                            <p
+                                x-text="query ? 'Tidak ditemukan dokter dengan nama \"' + query + '\" untuk spesialisasi ' + selectedSpecialtyName : 'Belum ada dokter untuk spesialisasi ' + selectedSpecialtyName">
+                            </p>
+                        </div>
+                    </template>
+
+                    <!-- Doctor Cards -->
+                    <div class="card-container">
+                        <template x-for="(dokter, index) in doctors" :key="dokter.id">
+                            <div class="doctor-card">
+                                <template x-if="dokter.foto">
+                                    <img :src="dokter.foto" alt="Foto Dokter" class="doctor-avatar">
+                                </template>
+                                <template x-if="!dokter.foto">
+                                    <div class="doctor-placeholder">👨‍⚕️</div>
+                                </template>
+
+                                <div class="doctor-name" x-text="dokter.name"></div>
+                                <div class="doctor-spesialis" x-text="dokter.specialty"></div>
+                                <div class="rating-stars">★★★★☆</div>
+                                <div class="doctor-harga"
+                                    x-text="dokter.harga ? 'Rp ' + new Intl.NumberFormat('id-ID').format(dokter.harga) : 'Harga belum diatur'">
+                                </div>
+
+                                <div class="card-footer">
+                                    <button class="btn btn-outline-primary btn-sm"
+                                        @click="showDetail('jadwal-' + dokter.id)">
+                                        Lihat Jadwal
+                                    </button>
+                                    <a :href="`/pasien/dokter/${dokter.id}`" class="btn btn-success btn-sm">
+                                        Konsultasi
+                                    </a>
+                                </div>
+
+                                <div :id="'jadwal-' + dokter.id" class="card-toggle-content">
+                                    <strong>Jadwal:</strong> Senin - Jumat, 08:00 - 14:00
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Initial State (no specialty selected) -->
+            <template x-if="!selectedSpecialty">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔍</div>
+                    <h5>Pilih Spesialisasi Dokter</h5>
+                    <p>Silakan pilih spesialisasi dokter terlebih dahulu untuk melihat daftar dokter yang tersedia.</p>
+                </div>
+            </template>
         </div>
+
+        <!-- Pagination (only show if specialty is selected and doctors exist) -->
+        @if ($selectedSpecialty && $doctors->count() > 0)
+            <div class="d-flex justify-content-center mt-4">
+                {{ $doctors->appends(['specialty_id' => request('specialty_id')])->links() }}
+            </div>
+        @endif
     </div>
 </x-pasien-layout>
